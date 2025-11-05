@@ -1,0 +1,13 @@
+streamlit
+pandas
+numpy
+scikit-learn
+xgboost
+joblib
+matplotlib
+seaborn
+pillow
+requests
+streamlit-option-menu
+streamlit-lottie
+streamlit-extras
