@@ -210,23 +210,49 @@ div[data-testid="stFormSubmitButton"] > button:hover {
 
 st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
 
+# ---------------------- MODEL LOADING  ----------------------
+import zipfile
+from io import BytesIO
+
 DEMO_MODE = False
+
 @st.cache_resource
-def load_artifacts():
+def load_models_from_zip():
+    """Downloads and loads ML model + encoders from Google Drive ZIP (Streamlit Secrets)."""
     try:
-        model = joblib.load('huntington_model_pipeline.pkl')
-        target_encoder = joblib.load('target_encoder.pkl')
-        feature_encoders = joblib.load('feature_encoders.pkl')
-        with open('model_columns.json', 'r') as f:
+        zip_url = st.secrets["model"]["zip_url"]
+        response = requests.get(zip_url)
+        response.raise_for_status()
+
+        # Extract model artifacts to a folder
+        with zipfile.ZipFile(BytesIO(response.content)) as z:
+            z.extractall("models")
+
+        model = joblib.load("models/huntington_model_pipeline.pkl")
+        feature_encoders = joblib.load("models/feature_encoders.pkl")
+        target_encoder = joblib.load("models/target_encoder.pkl")
+
+        with open("models/model_columns.json") as f:
             model_columns = json.load(f)
+
         return model, target_encoder, feature_encoders, model_columns
-    except FileNotFoundError:
+
+    except Exception as e:
         global DEMO_MODE
         DEMO_MODE = True
-        st.warning("Running in Demo Mode: model artifacts not found. Predictions use a simple heuristic and are NOT medical advice.")
+        st.warning("⚠️ Running in Demo Mode: model artifacts not found or failed to load.")
+        st.error(f"Model loading error: {e}")
         return None, None, None, None
 
-model, target_encoder, feature_encoders, model_columns = load_artifacts()
+
+with st.spinner("⏳ Loading ML model... Please wait."):
+    model, target_encoder, feature_encoders, model_columns = load_models_from_zip()
+
+if not DEMO_MODE:
+    st.success(" Model loaded successfully — predictions are LIVE!")
+else:
+    st.info("🧩 Using demo heuristic (educational mode only).")
+
 
 def demo_predict_stage(row):
     motor = row.get('Motor_Score', 0)
