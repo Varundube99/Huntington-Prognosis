@@ -7,6 +7,10 @@ from streamlit_option_menu import option_menu
 import requests  # For Lottie
 from streamlit_lottie import st_lottie  # For Lottie
 from streamlit_extras.add_vertical_space import add_vertical_space # Import for home page
+from pathlib import Path
+
+
+BASE_DIR = Path(__file__).resolve().parent
 
 warnings.filterwarnings('ignore')
 
@@ -391,7 +395,8 @@ def show_home_page():
     import base64
     from pathlib import Path
 
-    image_path = Path("brain.png")
+    image_path = BASE_DIR / "brain.png"
+
     if image_path.exists():
         with open(image_path, "rb") as img_file:
             encoded = base64.b64encode(img_file.read()).decode()
@@ -674,8 +679,9 @@ def show_about_hd_page():
     add_vertical_space(1)
 
     try:
-        image1_base64 = image_to_base64("HD1.png")
-        image2_base64 = image_to_base64("HD2.png")
+        image1_base64 = image_to_base64(BASE_DIR / "HD1.png")
+        image2_base64 = image_to_base64(BASE_DIR / "HD2.png")
+
     except Exception:
         st.warning("⚠️ Please ensure 'HD1.png' and 'HD2.png' are in the same directory.")
         return
