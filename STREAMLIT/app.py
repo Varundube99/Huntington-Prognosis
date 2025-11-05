@@ -252,11 +252,6 @@ def load_models_from_zip():
 with st.spinner("⏳ Loading ML model... Please wait."):
     model, target_encoder, feature_encoders, model_columns = load_models_from_zip()
 
-if not DEMO_MODE:
-    st.success(" Model loaded successfully — predictions are LIVE!")
-else:
-    st.info("🧩 Using demo heuristic (educational mode only).")
-
 
 def demo_predict_stage(row):
     motor = row.get('Motor_Score', 0)
